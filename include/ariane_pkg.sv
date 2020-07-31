@@ -146,6 +146,12 @@ package ariane_pkg;
     // depth of store-buffers, this needs to be a power of two
     localparam int unsigned DEPTH_SPEC   = 4;
 
+    // define the width of mhpmcounters [3..14] for FPGA optimized implementation
+    // 32 bit: absorb counter logic + registers into DSP slice.
+    // 48 bit: absorb counter logic into DSP slice
+    // 64 bit: no FPGA optimization possible. (ASIC setting)
+    localparam int MHPMCounterWidth = 32;
+
 `ifdef WT_DCACHE
     // in this case we can use a small commit queue since we have a write buffer in the dcache
     // we could in principle do without the commit queue in this case, but the timing degrades if we do that due
