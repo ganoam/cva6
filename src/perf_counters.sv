@@ -15,7 +15,7 @@
 import ariane_pkg::*;
 
 module perf_counters #(
-  parameter int CounterWidth    = 64
+  parameter int CounterWidth = 64
 ) (
   input  logic                                    clk_i,
   input  logic                                    rst_ni,
@@ -63,21 +63,11 @@ module perf_counters #(
     );
   end
 
-  // counter write address decoder
-  always_comb begin
-    for (int unsigned j=riscv::CSR_ML1_ICACHE_MISS; j<= riscv::CSR_MIF_EMPTY; j++) begin
-      if ({RegOffset, addr_i} == j) begin
-        perf_counter_we[j] = we_i;
-      end else begin
-        perf_counter_we[j] = 1'b0;
-      end
-    end
-  end
-
   // counter increment
   always_comb begin
     perf_counter_inc = '0;
-    data_o           = 'b0;
+    perf_counter_we  = '0;
+    data_o           = '0;
 
     // don't increment counters in debug mode
     if (!debug_mode_i) begin
@@ -115,8 +105,11 @@ module perf_counters #(
       perf_counter_inc[riscv::CSR_MIF_EMPTY]      = if_empty_i;
     end
 
-    // write after read
+    // read
     data_o = perf_counter[{RegOffset,addr_i}];
+
+    // write
+    perf_counter_we[{RegOffset, addr_i}] = 1'b1;
   end
 
 endmodule
